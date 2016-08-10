@@ -16,6 +16,7 @@ MemberFind.me doesn't have documentation for their APIs.  But as long as you hav
 and you know how to read the results, it isn't hard.
 
 I found a couple of example calls, like this one:
+
 ``` php
 https://api.memberfind.me/v1/evt?sdp=1468738800&edp=1475996400&org=12918&all&Z=1468964198&SF=NnJKmzY2vzAWvAMM02ITXG0blJlCeMKadwY2yMjS8Ft~#.$set['org']."&wee=1&grp=".$instance['grp']."&cnt=".$instance['cnt']."&sdp=".time()
 ```
@@ -26,6 +27,7 @@ Looking at the data returned, the event descriptions on the site, and some commo
 I did learn that the data that is returned varies on how you call the API. If you call it in a way that returns a list of events,
 you get a more limited set of data.
 Here are the fields returned when asking for a list of events, for example with the call:
+
 ```
 https://api.memberfind.me/v1/evt?szp=1468738800&edp=1475996400&org=12918&all&Z=1468964198
 ```
@@ -46,10 +48,13 @@ https://api.memberfind.me/v1/evt?szp=1468738800&edp=1475996400&org=12918&all&Z=1
 | _re   | Unknown |
 
 If you call a specific event, like this:
+
 ```
 https://api.memberfind.me/v1/evt?org=12918&url=2016/8/15/oxbow-farm-summer-camp
 ```
+
 the following **additional** fields are returned:
+
 | Field | Description |
 |-------|-------------|
 | col   | Collection? |
@@ -66,6 +71,7 @@ As you can see, I did not try and sort out what all the fields meant. I was real
 
 After that building the RSS feed was pretty simple, with a quick visit to a couple of websites [I liked this one](http://cyber.law.harvard.edu/rss/rss.html) to verify the RSS XML format/schema.
 A basic RSS file looks like this:
+
 ``` xml
 <rss version='2.0'>
   <channel>
@@ -88,6 +94,7 @@ A basic RSS file looks like this:
 ```
   
 And in our case we mapped fields from MemberFind.me to RSS like this:
+
 | RSS element | MemberFind.me field |
 |---------|-------------|
 | title   | ttl |
@@ -97,16 +104,31 @@ And in our case we mapped fields from MemberFind.me to RSS like this:
 | enclosure | _Base URL to logo location where MemmberFind.me stores it_ + _id |
 | pubDate | Generated date **see below** |
 
+### RSS description element
 The description was the most complex to build, because we wanted the description to have a complete summary of the event, much like it appears on the chamber website.
 So, we built it up using multiple fields and additional text and HTML.
 We created an HTML table, and the resulting HTML was:
+
 ``` html
 <table>
-	<tr><td>Venue: </td><td colspan='3'>_adn field_</td></tr>
-	<tr><td>Event start: </td><td> _szp field_ </td><td>Event end: </td><td> _ezp field_</td></tr>
-	<tr><td><img width='150px' src='https://d1tif55lvfk8gc.cloudfront.net/*_id field*.jpg'/></td><td colspan='3'>_dtl field_</td></tr>
+	<tr><td>Venue: </td><td colspan='3'>[adn field]</td></tr>
+	<tr><td>Event start: </td><td> [szp field] </td><td>Event end: </td><td> [ezp field]</td></tr>
+	<tr><td><img width='150px' src='https://d1tif55lvfk8gc.cloudfront.net/[_id field].jpg'/></td><td colspan='3'>[dtl field]</td></tr>
 	</table>
 ```
 
+### RSS pubDate element
+We also had to artificially create a pubDate element value.  MailChimp looks at the pubDate when deciding what RSS items to include in a mailing.  It looks likes for items published in the last week, or whatever time period is associated with the mail campaign. At first we thought to use the create date, _ct field.  But the events could be created months in advance. So instead, we create the pubdate based on the event date. We decided thathe pubDate would simply be 1 week before the event date.  This does give us some odd results where the pubDate can be 'in the future'.
 
-| 
+## Filtering events
+In our case, we want to make sure that only events coming up in the next week are returned for the feed.  So, when we call the REST API, we build the calling URL using calculated dates, using the **strtotime** function.  Our calling URL to get the list of events is:
+
+```
+https://api.memberfind.me/v1/evt?org=12918&all&sdp=".strtotime("next Monday")."&edp=".strtotime("next Monday + 1 week")."&Z=".time()."&grp=".$_GET['categoryid']
+```
+
+You will notice we support passing a category ID in the RSS url so that our MailChimp campaign can excluse some events, like City Council meetings.
+
+Also, later in the code, we call a slightly different URL, for each event, in order to get those other fields we mentioned earlier... like the **dtl** field that has the detailed descriptio of the event for when we build our table.
+
+Take a look at the solution and let me know what you think.
