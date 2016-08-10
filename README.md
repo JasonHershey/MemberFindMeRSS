@@ -120,7 +120,7 @@ We created an HTML table, and the resulting HTML was:
 ### RSS pubDate element
 We also had to artificially create a pubDate element value.  MailChimp looks at the pubDate when deciding what RSS items to include in a mailing.  It looks likes for items published in the last week, or whatever time period is associated with the mail campaign. At first we thought to use the create date, _ct field.  But the events could be created months in advance. So instead, we create the pubdate based on the event date. We decided thathe pubDate would simply be 1 week before the event date.  This does give us some odd results where the pubDate can be 'in the future'.
 
-## Filtering events
+### Filtering events and making the REST calls
 In our case, we want to make sure that only events coming up in the next week are returned for the feed.  So, when we call the REST API, we build the calling URL using calculated dates, using the **strtotime** function.  Our calling URL to get the list of events is:
 
 ```
@@ -132,3 +132,5 @@ You will notice we support passing a category ID in the RSS url so that our Mail
 Also, later in the code, we call a slightly different URL, for each event, in order to get those other fields we mentioned earlier... like the **dtl** field that has the detailed descriptio of the event for when we build our table.
 
 Take a look at the solution and let me know what you think.
+
+> **Note on using Windows PowerShell**  I found using PowerShell to be very handy for this project. It was a nice interactive way to call and review the results of a REST call.  I could quickly and easily play around to see what calls worked and see the results.  Afterwards, I could move things to PHP knowing that once added to the site, the only problems were likely with PHP syntax, not in the actual REST call.
