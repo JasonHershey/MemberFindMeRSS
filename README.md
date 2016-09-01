@@ -107,15 +107,7 @@ And in our case we mapped fields from MemberFind.me to RSS like this:
 ### RSS description element
 The description was the most complex to build, because we wanted the description to have a complete summary of the event, much like it appears on the chamber website.
 So, we built it up using multiple fields and additional text and HTML.
-We created an HTML table, and the resulting HTML was:
 
-``` html
-<table>
-	<tr><td>Venue: </td><td colspan='3'>[adn field]</td></tr>
-	<tr><td>Event start: </td><td> [szp field] </td><td>Event end: </td><td> [ezp field]</td></tr>
-	<tr><td><img width='150px' src='https://d1tif55lvfk8gc.cloudfront.net/[_id field].jpg'/></td><td colspan='3'>[dtl field]</td></tr>
-	</table>
-```
 
 ### RSS pubDate element
 We also had to artificially create a pubDate element value.  MailChimp looks at the pubDate when deciding what RSS items to include in a mailing.  It looks likes for items published in the last week, or whatever time period is associated with the mail campaign. At first we thought to use the create date, _ct field.  But the events could be created months in advance. So instead, we create the pubdate based on the event date. We decided thathe pubDate would simply be 1 week before the event date.  This does give us some odd results where the pubDate can be 'in the future'.
