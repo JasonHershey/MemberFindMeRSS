@@ -131,6 +131,12 @@ You will notice we support passing a category ID in the RSS url so that our Mail
 
 Also, later in the code, we call a slightly different URL, for each event, in order to get those other fields we mentioned earlier... like the **dtl** field that has the detailed descriptio of the event for when we build our table.
 
+## Add-to-calendar updates
+
+The solution has been updated to add links that will add events to a calendar. There are links that will create a .ics or .vcs file, or add an event to a users Google calendar.
+
+The files are calitem.php and calvcs.php. Creation of these files was based on a variety of solutions available on stackoverflow.
+
 Take a look at the solution and let me know what you think.
 
 > **Note on using Windows PowerShell**  I found using PowerShell to be very handy for this project. It was a nice interactive way to call and review the results of a REST call.  I could quickly and easily play around to see what calls worked and see the results.  Afterwards, I could move things to PHP knowing that once added to the site, the only problems were likely with PHP syntax, not in the actual REST call.
