@@ -6,8 +6,16 @@ echo '<?xml version="1.0" standalone="yes"?>';
 <?php 
 // Calling the event URL. In this case, we are looking for all events starting next week, so next Monday up to 1 week later. 
 // We are also filtering by category ID passed in page URL
+// updated to handle when no category is passed
+if ($_GET['categoryid']>'')
+{
 $event_url="https://api.memberfind.me/v1/evt?org=12918&all&sdp=".strtotime("next Monday")."&edp=".strtotime("next Monday + 1 week")."&Z=".time()."&grp=".$_GET['categoryid'];
-?>
+}
+else
+{
+$event_url="https://api.memberfind.me/v1/evt?org=12918&all&sdp=".strtotime("next Monday")."&edp=".strtotime("next Monday + 1 week")."&Z=".time();
+
+}?>
 
 <!-- This is the beginning of our RSS feed -->
 <rss version= "2.0"> 
@@ -33,11 +41,39 @@ foreach($events as $event){
 	$event_detail=json_decode($event_details);
 
 // we build the description with a common format and inserting data from the json		
+// updated format of description to work better with mobile. Uses design defined by a designer
+// also stripping out some html from the details of the event
+// also added add-to-calendar links
+
 	$description = "<table>
-	<tr><td>Venue: </td><td colspan='3'>".$event->adn."</td></tr>
-	<tr><td>Event start: </td><td>".$event->szp."</td><td>Event end: </td><td>".$event->ezp."</td></tr>
-	<tr><td><img width='150px' src='https://d1tif55lvfk8gc.cloudfront.net/".$event->_id.".jpg'/></td><td colspan='3'>".$event_detail->dtl." </td></tr>
-	</table>";
+    <tr><td><img width='150px' src='https://d1tif55lvfk8gc.cloudfront.net/".$event->_id.".jpg'/></td></tr>
+    </table>
+    <table>
+    <tr><td><h2>" .$event->ttl."</h2></td></tr>
+    </table>
+    <table>
+    <tr><td>
+    <h3><span style='font-size:12.0pt;line-height:125%;font-family:'Helvetica',sans-serif;color:firebrick'>---------------------------------------</span></h3>
+    <span style='font-size:12.0pt;line-height:125%;font-family:'Helvetica',sans-serif;color:firebrick'>When: </span><span style='font-size:12.0pt;line-height:125%;font-family:'Helvetica',sans-serif;color:#303030'>".$event->szp." to ".$event->ezp."</span>
+    <br/>
+	<span style='font-size:12.0pt;line-height:125%;font-family:'Helvetica',sans-serif;color:firebrick'>Where: </span><span style='font-size:12.0pt;line-height:125%;font-family:'Helvetica',sans-serif;color:#303030'>".$event->adn."</span>
+	<h3><span style='font-family:'Helvetica',sans-serif;color:firebrick'>---------------------------------------</span></h3>
+    <span style='font-family:'Helvetica',sans-serif;color:#202020'>".strip_tags($event_detail->dtl,'<p><a><h1><h2><h3><table><td><tr><th><img><label>')."</span>
+    </td></tr>
+    </table>
+    <table>
+    <tr>
+    <td>
+    <p>Add to calendar:</p>
+    <p><a href='./calitem.php?start=".$event->sdp."&amp;end=".$event->edp."&amp;desc=".$event->url."&amp;sub=".$event->ttl."&amp;loc=".$event->adn."' target=_new>Outlook/iPhone</a>
+    -<a href='./calvcs.php?start=".$event->sdp."&amp;end=".$event->edp."&amp;desc=".$event->url."&amp;sub=".$event->ttl."&amp;loc=".$event->adn."' target=_new>Android</a>
+    -<a href='http://www.google.com/calendar/event?action=TEMPLATE&text=".$event->ttl."&dates=".$event->sdp."/".$event->edp."&details=".$event->url."&location=".$event->adn."' target=_new>Google</a></p>
+
+
+ </td>
+    </tr>
+    </table>
+    ";
 
 // We are using the RSS with mail chimp which uses pubdate to decide what RSS items to mail out.
 // So we artificially create the pubdate by subtracting 1 week from the start date for the event
