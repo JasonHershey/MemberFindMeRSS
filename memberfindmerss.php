@@ -40,6 +40,15 @@ foreach($events as $event){
 	$event_details = file_get_contents("https://api.memberfind.me/v1/evt?org=12918&url=".$event->url);
 	$event_detail=json_decode($event_details);
 
+// Added to handling for Google calendar when the end time does not exist (for an all-day event)
+// Url changes based on if edp value exists
+if ($event->edp==''){
+$googleurl="'http://www.google.com/calendar/event?action=TEMPLATE&text=".$event->ttl."&dates=".date('Ymd',$event->sdp)."T".date('His',$event->sdp)."/".date('Ymd',$event->sdp)."T".date('His',$event->sdp)."&details=For details on this and other events, visit the Duvall Chamber of Commerce event calendar at http://duvallchamberofcommerce.com/duvall-events/&location=".$event->adn."'";
+}
+else{   
+$googleurl="'http://www.google.com/calendar/event?action=TEMPLATE&text=".$event->ttl."&dates=".date('Ymd',$event->sdp)."T".date('His',$event->sdp)."/".date('Ymd',$event->edp)."T".date('His',$event->edp)."&details=For details on this and other events, visit the Duvall Chamber of Commerce event calendar at http://duvallchamberofcommerce.com/duvall-events/&location=".$event->adn."'";
+}
+
 // we build the description with a common format and inserting data from the json		
 // updated format of description to work better with mobile. Uses design defined by a designer
 // also stripping out some html from the details of the event
@@ -67,7 +76,7 @@ foreach($events as $event){
     <p>Add to calendar:</p>
     <p><a href='./calitem.php?start=".$event->sdp."&amp;end=".$event->edp."&amp;desc=".$event->url."&amp;sub=".$event->ttl."&amp;loc=".$event->adn."' target=_new>Outlook/iPhone</a>
     -<a href='./calvcs.php?start=".$event->sdp."&amp;end=".$event->edp."&amp;desc=".$event->url."&amp;sub=".$event->ttl."&amp;loc=".$event->adn."' target=_new>Android</a>
-    -<a href='http://www.google.com/calendar/event?action=TEMPLATE&text=".$event->ttl."&dates=".$event->sdp."/".$event->edp."&details=".$event->url."&location=".$event->adn."' target=_new>Google</a></p>
+    -<a href=".$googleurl." target=_new>Google</a></p>
 
 
  </td>

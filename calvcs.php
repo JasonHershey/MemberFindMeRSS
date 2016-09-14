@@ -10,7 +10,7 @@ VERSION:2.0
 PRODID:-//hacksw/handcal//NONSGML v1.0//EN
 BEGIN:VEVENT
 UID:" . md5(uniqid(mt_rand(), true)) . "duvallchamber.com
-DTSTAMP:" . gmdate('Ymd').'T'. gmdate('His') . "Z
+DTSTAMP:" . gmdate('Ymd').'T'. gmdate('His') . "
 DTSTART:".date('Ymd',$start)."T".date('His',$start)."
 DTEND:".date('Ymd',$end)."T".date('His',$end)."
 SUMMARY:".$sub."
