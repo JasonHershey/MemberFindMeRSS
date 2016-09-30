@@ -106,11 +106,11 @@ And in our case we mapped fields from MemberFind.me to RSS like this:
 
 ### RSS description element
 The description was the most complex to build, because we wanted the description to have a complete summary of the event, much like it appears on the chamber website.
-So, we built it up using multiple fields and additional text and HTML.
+So, we built it up using multiple fields and additional text and HTML. In addition, we added 'add to calendar' links as described below.
 
 
 ### RSS pubDate element
-We also had to artificially create a pubDate element value.  MailChimp looks at the pubDate when deciding what RSS items to include in a mailing.  It looks likes for items published in the last week, or whatever time period is associated with the mail campaign. At first we thought to use the create date, _ct field.  But the events could be created months in advance. So instead, we create the pubdate based on the event date. We decided thathe pubDate would simply be 1 week before the event date.  This does give us some odd results where the pubDate can be 'in the future'.
+We also had to artificially create a pubDate element value.  MailChimp looks at the pubDate when deciding what RSS items to include in a mailing.  It looks for items published in the last week, or whatever time period is associated with the mail campaign. At first we thought to use the create date, \_ct field.  But the events could be created months in advance. We then tried creating the pubdate based on the event date. The pubDate would simply be 1 week before the event date.  This does give us some odd results where the pubDate can be 'in the future'.   Most recently, we decided to simply call the pubdate 'today' so its refreshed whenever you view the feed.  Not perfect for RSS readers, but because we filter the events (see below) it works perfect for what we are doing with MailChimp.
 
 ### Filtering events and making the REST calls
 In our case, we want to make sure that only events coming up in the next week are returned for the feed.  So, when we call the REST API, we build the calling URL using calculated dates, using the **strtotime** function.  Our calling URL to get the list of events is:
